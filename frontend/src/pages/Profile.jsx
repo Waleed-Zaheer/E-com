@@ -57,9 +57,12 @@ export default function Profile() {
         phoneNumber: user.phoneNumber || '',
         avatar: user.avatar || '',
       });
-      setAvatarPreview(user.avatar || profileImg);
+
+      const backendUrl = import.meta.env.VITE_BACKEND_URL;
+      setAvatarPreview(user.avatar ? `${backendUrl}${user.avatar}` : profileImg);
     }
   }, [user]);
+
 
   // Handle input changes
   const handleInputChange = (e) => {
@@ -103,13 +106,8 @@ export default function Profile() {
         updateData.append('avatar', avatarFile);
       }
 
-      // Log form data for debugging
-      for (let [key, value] of updateData.entries()) {
-        console.log(`${key}: ${value}`);
-      }
-
       // Send update request
-      const response = await axios.put('/users/update-profile', updateData, {
+      const response = await axios.put('/api/users/updateProfile', updateData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }

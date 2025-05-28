@@ -2,6 +2,7 @@ import User from "../models/user.js";
 import { createError } from "../utils/error.js";
 import path from "path";
 import fs from "fs";
+import multer from "multer";
 
 export const registerUser = async (req, res, next) => {
   const { username, email, password, phoneNumber } = req.body;
@@ -68,61 +69,45 @@ export const deleteUser = async (req, res, next) => {
 
 export const updateUserProfile = async (req, res, next) => {
   try {
-    // Log incoming request details
-    console.log("Update Profile Request:", {
-      user: req.user,
-      body: req.body,
-      file: req.file,
-    });
+    // const userId = req.user.id;
+    const { username, email, phoneNumber } = req.body;
 
-    // Verify user exists
-    const userId = req.user.id;
-    const user = await User.findById(userId);
-    if (!user) {
-      return next(createError(404, "User not found"));
-    }
-
-    user.username = req.body.username || user.username;
-    user.email = req.body.email || user.email;
-    user.phoneNumber = req.body.phoneNumber || user.phoneNumber;
-
-    if (req.file) {
-      // Remove old avatar if exists
-      if (user.avatar && user.avatar !== "default.jpg") {
-        const oldAvatarPath = path.join(
-          "uploads",
-          "profile_avatars",
-          path.basename(user.avatar)
-        );
-        if (fs.existsSync(oldAvatarPath)) {
-          fs.unlinkSync(oldAvatarPath);
-        }
-      }
-
-      user.avatar = `/uploads/profile_avatars/${req.file.filename}`;
-    }
-
-    const updatedUser = await user.save();
-
-    const userResponse = {
-      _id: updatedUser._id,
-      username: updatedUser.username,
-      email: updatedUser.email,
-      phoneNumber: updatedUser.phoneNumber,
-      avatar: updatedUser.avatar,
-      role: updatedUser.role,
-      status: updatedUser.status,
+    // Prepare update object
+    const updateData = {
+      username,
+      email,
+      phoneNumber,
     };
+
+    // Handle avatar upload
+    if (req.file) {
+      updateData.avatar = `/uploads/profile_avatars/${req.file.filename}`;
+    }
+
+    // Find and update user
+    const user = await User.findOne({ email: email });
+    const updatedUser = await User.findByIdAndUpdate(user._id, updateData, {
+      new: true, // Return the updated document
+      runValidators: true, // Run model validations
+    }).select("-password");
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
 
     res.status(200).json({
       message: "Profile updated successfully",
-      updatedUser: userResponse,
+      updatedUser,
     });
   } catch (error) {
-    console.error("Detailed Update Profile Error:", {
+    console.error("Detailed Profile Update Error:", {
       message: error.message,
       stack: error.stack,
     });
-    next(createError(500, "Failed to update profile"));
+
+    res.status(500).json({
+      message: "Error updating profile",
+      error: error.message,
+    });
   }
 };

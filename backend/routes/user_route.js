@@ -1,18 +1,30 @@
 import express from "express";
+import { fileURLToPath } from "url";
 import {
   registerUser,
   profileUserById,
   deleteUser,
   updateUserProfile,
 } from "../controllers/user_controller.js";
+import path from "path";
+import fs from "fs";
 import multer from "multer";
+
+// Get the directory path in ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const uploadDir = path.join(__dirname, "../uploads/profile_avatars");
+
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "uploads/profile_avatar/"); // Ensure this directory exists
+    cb(null, uploadDir);
   },
   filename: function (req, file, cb) {
-    cb(null, Date.now() + "-" + file.originalname);
+    cb(null, Date.now() + path.extname(file.originalname));
   },
 });
 
@@ -34,6 +46,6 @@ const router = express.Router();
 router.post("/register", registerUser);
 router.get("/profile", profileUserById);
 router.delete("/:id", deleteUser);
-router.put("/update-profile", upload.single("image"), updateUserProfile);
+router.put("/updateProfile", upload.single("avatar"), updateUserProfile);
 
 export default router;
