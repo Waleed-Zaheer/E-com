@@ -69,7 +69,13 @@ const ProductCard = () => {
             />
 
             <button
-              onClick={() => handleAddToCart(product)}
+              onClick={(e) => {
+                e.preventDefault(); // Prevent navigation
+                e.stopPropagation(); // Stop event bubbling
+                handleAddToCart(product)
+                // Update the product stock locally
+                product.stock -= 1
+              }}
               disabled={product.stock <= 0}
               className={`absolute top-2 right-2 p-2 rounded-full 
               ${product.stock <= 0
@@ -82,7 +88,6 @@ const ProductCard = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
               </svg>
             </button>
-
             <div className="flex justify-between items-center">
               <h2 className="text-lg font-semibold text-gray-800">
                 {product.name}
