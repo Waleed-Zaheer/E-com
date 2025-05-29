@@ -10,6 +10,14 @@ export const getAllProducts = asyncHandler(async (req, res, next) => {
   res.status(200).json({ products });
 });
 
+export const getProductById = asyncHandler(async (req, res, next) => {
+  const product = await Product.findById(req.params.id);
+  if (!product) {
+    return next(createError(404, "Product not found"));
+  }
+  res.status(200).json({ product });
+});
+
 export const getProductsByCategory = asyncHandler(async (req, res, next) => {
   const products = await Product.find({ category: req.params.category });
   if (!products || products.length === 0) {

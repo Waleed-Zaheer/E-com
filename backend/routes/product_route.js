@@ -1,6 +1,7 @@
 import express from "express";
 import {
   getAllProducts,
+  getProductById,
   getProductsByCategory,
   getProductsByName,
   searchProducts,
@@ -10,6 +11,7 @@ const router = express.Router();
 
 // Get all products
 router.get("/getAllProducts", getAllProducts);
+router.get("/getProductById/:id", getProductById);
 
 // Search & Filters
 router.get("/category/:category", getProductsByCategory);
