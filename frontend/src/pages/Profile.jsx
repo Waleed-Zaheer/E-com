@@ -58,8 +58,13 @@ export default function Profile() {
         avatar: user.avatar || '',
       });
 
-      const backendUrl = import.meta.env.VITE_BACKEND_URL;
-      setAvatarPreview(user.avatar ? `${backendUrl}${user.avatar}` : profileImg);
+      const backendUrl = import.meta.env.VITE_API_BASE_URL;
+      const fullAvatarPath = user.avatar
+        ? `${backendUrl}${user.avatar}`
+        : profileImg;
+
+      console.log('Full Avatar Path:', fullAvatarPath);
+      setAvatarPreview(fullAvatarPath);
     }
   }, [user]);
 
@@ -112,6 +117,7 @@ export default function Profile() {
           'Content-Type': 'multipart/form-data'
         }
       });
+
 
       // Update user in context
       setUser(response.data.updatedUser);
@@ -210,7 +216,7 @@ export default function Profile() {
               </div>
             ) : (
               <img
-                src={user?.avatar || profileImg}
+                src={avatarPreview || user?.avatar || profileImg}
                 alt="Profile"
                 className="w-36 h-36 rounded-full border-6 border-white shadow-2xl object-cover"
               />
