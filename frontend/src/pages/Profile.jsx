@@ -63,7 +63,6 @@ export default function Profile() {
         ? `${backendUrl}${user.avatar}`
         : profileImg;
 
-      console.log('Full Avatar Path:', fullAvatarPath);
       setAvatarPreview(fullAvatarPath);
     }
   }, [user]);
