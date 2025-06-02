@@ -1,5 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import axios from 'axios';
+import { Cookie } from 'lucide-react';
 
 const UserContext = createContext({
   user: null,
@@ -84,9 +85,10 @@ export const UserProvider = ({ children }) => {
 
   const logout = () => {
     setUser(null);
-    sessionStorage.removeItem('userInfo');
-    sessionStorage.removeItem('userToken');
+    sessionStorage.clear();
+    localStorage.clear();
     delete axios.defaults.headers.common['Authorization'];
+    axios.post('/api/auth/logout');
   };
 
   useEffect(() => {

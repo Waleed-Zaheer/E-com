@@ -8,7 +8,7 @@ export const CartProvider = ({ children }) => {
 
   // Load cart from localStorage on initial load
   useEffect(() => {
-    const savedCart = localStorage.getItem('cart');
+    const savedCart = sessionStorage.getItem('cart');
     if (savedCart) {
       setCart(JSON.parse(savedCart));
     }
@@ -16,34 +16,55 @@ export const CartProvider = ({ children }) => {
 
   const addToCart = async (cartItem) => {
     try {
-      // First, check if item already exists in cart
-      const existingItemIndex = cart.findIndex(item => item.productId === cartItem.productId);
+      const token = sessionStorage.getItem('userToken');
+      if (!token) {
+        throw new Error('Please login to add items to cart');
+      }
+
+      const userInfo = JSON.parse(sessionStorage.getItem('userInfo'));
+      if (!userInfo) {
+        throw new Error('User information not found');
+      }
 
       let updatedCart;
+      const existingItemIndex = cart.findIndex(item => item.productId === cartItem.productId);
+      console.log('Existing Item Index:', existingItemIndex);
       if (existingItemIndex > -1) {
-        // If item exists, update quantity
         updatedCart = cart.map((item, index) =>
           index === existingItemIndex
             ? { ...item, quantity: item.quantity + cartItem.quantity }
             : item
         );
       } else {
-        // If item doesn't exist, add new item
         updatedCart = [...cart, cartItem];
       }
 
-      // Update local state
       setCart(updatedCart);
+      sessionStorage.setItem('cart', JSON.stringify(updatedCart));
+      const response = await axios.post('/api/cart/addToCart',
+        {
+          userId: userInfo.id,
+          ...cartItem
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
 
-      // Save to localStorage
-      localStorage.setItem('cart', JSON.stringify(updatedCart));
-
-      // Optional: Sync with backend
-      await axios.post('/api/cart/add', cartItem);
-
-      return updatedCart;
+      if (response.data) {
+        setCart(updatedCart);
+        sessionStorage.setItem('cart', JSON.stringify(updatedCart));
+        return response.data;
+      }
     } catch (error) {
       console.error('Add to cart failed', error);
+      // Revert local cart state on error
+      const savedCart = sessionStorage.getItem('cart');
+      if (savedCart) {
+        setCart(JSON.parse(savedCart));
+      }
       throw error;
     }
   };

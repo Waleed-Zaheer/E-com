@@ -1,8 +1,5 @@
 import User from "../models/user.js";
 import { createError } from "../utils/error.js";
-import path from "path";
-import fs from "fs";
-import multer from "multer";
 
 export const registerUser = async (req, res, next) => {
   const { username, email, password, phoneNumber } = req.body;

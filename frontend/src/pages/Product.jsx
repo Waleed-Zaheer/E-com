@@ -56,19 +56,20 @@ export default function ProductDetails() {
   if (!product) return <div className="text-center py-4">Product not found</div>;
 
   return (
-    <div className="container px-4 py-8 flex justify-center bg-slate-100 min-h-screen">
-      <div className="w-full max-w-4xl bg-white shadow-lg rounded-xl overflow-hidden flex flex-col md:flex-row mx-auto my-8 h-auto">
+    <div className="container mx-auto px-4 py-6 sm:py-8 md:py-12 lg:py-16 min-h-screen bg-slate-100 flex justify-center max-w-full">
+      <div className="w-full max-w-4xl bg-white shadow-lg rounded-xl overflow-hidden flex flex-col md:flex-row h-fit md:h-2/3 my-4 sm:my-6 md:my-8 lg:my-10">
+
         {/* Left Side: Product Image */}
-        <div className="md:w-1/2 p-8 flex items-center justify-center bg-gray-50">
+        <div className="md:w-1/2 p-8 flex items-center justify-center bg-blue-300">
           <img
             src={`${import.meta.env.VITE_API_BASE_URL}${product?.image || ''}`}
             alt={product?.name || 'Product'}
-            className="max-w-full max-h-[400px] object-contain rounded-lg shadow-md hover:scale-105 transition-transform duration-300"
+            className="max-w-full h-2/3 rounded-lg shadow-md hover:scale-105 transition-transform duration-300 object-contain bg-white"
             onError={(e) => {
               e.target.onerror = null;
               e.target.src = 'https://via.placeholder.com/500x500?text=Image+Not+Found';
             }}
-          />s
+          />
         </div>
 
         {/* Right Side: Product Details */}
@@ -116,12 +117,11 @@ export default function ProductDetails() {
                 min="1"
                 max={product?.stock || 1}
                 value={quantity}
-                onChange={(e) => setQuantity(
-                  Math.min(
-                    parseInt(e.target.value),
-                    product?.stock || 1
+                onChange={(e) =>
+                  setQuantity(
+                    Math.min(parseInt(e.target.value) || 1, product?.stock || 1)
                   )
-                )}
+                }
                 className="w-24 border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
               />
             </div>
@@ -141,7 +141,7 @@ export default function ProductDetails() {
             </button>
           </div>
         </div>
-      </div>    
+      </div>
     </div>
   );
 }

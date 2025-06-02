@@ -30,20 +30,23 @@ export const getCart = asyncHandler(async (req, res, next) => {
 
 export const addToCart = asyncHandler(async (req, res, next) => {
   const { productId, quantity = 1 } = req.body;
-  const userId = req.user._id; // Assuming authentication middleware adds user
+  const userId = req.user.id;
+  // Get user ID from authenticated request
+  if (!req.user && !req.user._id) {
+    return next(
+      createError(401, "Authentication required from cart controller")
+    );
+  }
 
   try {
-    // Find the product
     const product = await Product.findById(productId);
     if (!product) {
       return next(createError(404, "Product not found"));
     }
 
-    // Check if user already has a cart
     let cart = await Cart.findOne({ user: userId });
 
     if (!cart) {
-      // Create new cart if doesn't exist
       cart = new Cart({
         user: userId,
         items: [
@@ -62,7 +65,6 @@ export const addToCart = asyncHandler(async (req, res, next) => {
       );
 
       if (existingItemIndex > -1) {
-        // Update quantity if product exists
         cart.items[existingItemIndex].quantity += quantity;
       } else {
         // Add new item to cart
@@ -80,10 +82,8 @@ export const addToCart = asyncHandler(async (req, res, next) => {
       );
     }
 
-    // Save cart
     await cart.save();
 
-    // Populate product details
     await cart.populate("items.product");
     res.status(200).json({
       message: "Item added to cart",
@@ -94,6 +94,7 @@ export const addToCart = asyncHandler(async (req, res, next) => {
       },
     });
   } catch (error) {
+    console.log("Error adding to cart:", error);
     next(createError(500, "Error adding to cart"));
   }
 });
@@ -152,11 +153,10 @@ export const removeFromCart = asyncHandler(async (req, res, next) => {
       return next(createError(404, "Cart not found"));
     }
 
-    // Remove item from cart
     cart.items = cart.items.filter(
       (item) => item.product.toString() !== productId
     );
-    // Recalculate total
+
     cart.total = cart.items.reduce(
       (total, item) => total + item.price * item.quantity,
       0

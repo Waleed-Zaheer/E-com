@@ -3,9 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { Menu, X, ShoppingCart, User, LogOut } from "lucide-react";
 import Logo from "../assets/bag_logo.svg";
 import useUser from '../context/UserProvider';
+import { useCart } from "../context/CartProvider";
 
 export default function Navbar() {
   const navigate = useNavigate();
+  const { cart } = useCart();
   const [query, setQuery] = useState("");
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
@@ -98,10 +100,17 @@ export default function Navbar() {
             {/* Cart Icon */}
             <button
               onClick={() => handleNavigate("/cart")}
-              className="text-white"
+              className="text-white flex items-center gap-2"
               aria-label="Cart"
             >
-              <ShoppingCart className="w-6 h-6" />
+              <div className="relative">
+                <ShoppingCart className="w-6 h-6" />
+                {cart.length > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    {cart.length}
+                  </span>
+                )}
+              </div>
             </button>
 
             {/* Profile Button */}
