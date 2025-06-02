@@ -1,6 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import axios from 'axios';
-import { Cookie } from 'lucide-react';
 
 const UserContext = createContext({
   user: null,
