@@ -102,7 +102,7 @@ export const addToCart = asyncHandler(async (req, res, next) => {
 export const updateCartItemQuantity = asyncHandler(async (req, res, next) => {
   const { productId } = req.params;
   const { quantity } = req.body;
-  const userId = req.user._id;
+  const userId = req.user.id;
 
   try {
     const cart = await Cart.findOne({ user: userId });
@@ -132,7 +132,7 @@ export const updateCartItemQuantity = asyncHandler(async (req, res, next) => {
     res.status(200).json({
       message: "Cart updated",
       cart: {
-        _id: cart._id,
+        _id: cart.id,
         items: cart.items,
         total: cart.total,
       },
@@ -144,7 +144,7 @@ export const updateCartItemQuantity = asyncHandler(async (req, res, next) => {
 
 export const removeFromCart = asyncHandler(async (req, res, next) => {
   const { productId } = req.params;
-  const userId = req.user._id;
+  const userId = req.user.id;
 
   try {
     const cart = await Cart.findOne({ user: userId });
@@ -167,7 +167,7 @@ export const removeFromCart = asyncHandler(async (req, res, next) => {
     res.status(200).json({
       message: "Item removed from cart",
       cart: {
-        _id: cart._id,
+        _id: cart.id,
         items: cart.items,
         total: cart.total,
       },
@@ -179,7 +179,7 @@ export const removeFromCart = asyncHandler(async (req, res, next) => {
 
 export const clearCart = asyncHandler(async (req, res, next) => {
   const cart = await Cart.findOneAndUpdate(
-    { user: req.user._id },
+    { user: req.user.id },
     { items: [], totalPrice: 0 },
     { new: true }
   );
